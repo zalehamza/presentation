@@ -1,0 +1,111 @@
+#Deploying manisfests kubernetes PostgreSQL as a StatefulSet in Kubernetes with pgadmin
+#kubectl apply -f postgres-deployment.yaml
+#kubectl apply -f pgadmin-deployment.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15.3
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: admin
+            - name: POSTGRES_DB
+              value: demo
+          volumeMounts:
+            - name: postgres-pvc
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-pvc
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5434
+      targetPort: 5432
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pgadmin
+spec:
+  serviceName: pgadmin
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4:latest
+          ports:
+            - containerPort: 5050
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: zalehamza@gmail.com
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: admin
+          volumeMounts:
+            - name: pgadmin-pvc
+              mountPath: /var/lib/pgadmin
+  volumeClaimTemplates:
+    - metadata:
+        name: pgadmin-pvc
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+spec:
+  selector:
+    app: pgadmin
+  ports:
+    - protocol: TCP
+      port: 5050
+      targetPort: 80
+  type: LoadBalancer
+
+#Deploying manisfests kubernetes PostgreSQL as a StatefulSet in Kubernetes with pgadmin
+#kubectl apply -f postgres-deployment.yaml
+#kubectl apply -f pgadmin-deployment.yaml
+

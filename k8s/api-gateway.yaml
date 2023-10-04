@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigateway
+  template:
+    metadata:
+      labels:
+        app: apigateway
+    spec:
+      containers:
+        - name: apigateway
+          image: apigateway:2.0.0
+          ports:
+            - containerPort: 8000
+          # env:
+          #   - name: FRAUD_SERVICE_URL
+          #     value: http://fraud:8002
+          #   - name: CUSTOMER_SERVICE_URL
+          #     value: http://customer:8001
+          #   - name: EUREKA_SERVICE_URL
+          #     value: http://eureka:8761
+          #   - name: SPRING_DATA_REDIS_HOST
+          #     value: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigateway-service
+spec:
+  selector:
+    app: apigateway
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer
+

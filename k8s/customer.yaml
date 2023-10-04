@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer
+  template:
+    metadata:
+      labels:
+        app: customer
+    spec:
+      containers:
+        - name: customer
+          image: customer:2.0.0
+          ports:
+            - containerPort: 8001
+          # env:
+          #   - name: FRAUD_SERVICE_URL
+          #     value: http://fraud:8002
+          #   - name: EUREKA_SERVICE_URL
+          #     value: http://eureka:8761
+          #   - name: POSTGRES_SERVICE_URL
+          #     value: http://postgres:5432
+
+
+            # - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+            #   value: "http://host.docker.internal:8080/realms/demo-presentation"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer
+spec:
+  selector:
+    app: customer
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+  type: LoadBalancer
+
+
+
