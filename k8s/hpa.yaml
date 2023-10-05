@@ -1,12 +1,12 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: webapp-scale
+  name: customer-scale
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: webapp
+    name: customer
   minReplicas: 1
   maxReplicas: 5
   metrics:
@@ -16,6 +16,7 @@ spec:
       target:
         type: Utilization
         averageUtilization: 70
+        log: "The average utilization is {{ .AverageUtilization }}. The target value is {{ .Target }}."
 
 # kubectl top pods
 # kubectl get hpa
